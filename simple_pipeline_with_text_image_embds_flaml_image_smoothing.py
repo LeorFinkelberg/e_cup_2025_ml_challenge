@@ -45,8 +45,8 @@ def _(np, pd):
 def _():
     TASK = "classification"
     SEED = 34534588
-    IMAGE_N_COMPONENTS = 350
-    TEXT_N_COMPONENTS = 150 
+    IMAGE_N_COMPONENTS = 100
+    TEXT_N_COMPONENTS = 50 
     return IMAGE_N_COMPONENTS, SEED, TASK, TEXT_N_COMPONENTS
 
 
