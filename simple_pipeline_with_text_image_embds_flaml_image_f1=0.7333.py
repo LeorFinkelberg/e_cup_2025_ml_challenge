@@ -528,94 +528,117 @@ def _(SEED, TASK, X_train_final, automl, custom_hp, mlflow, y_train):
 def _(mo):
     mo.md(
         r"""
-    [flaml.automl.logger: 08-24 03:53:53] {1752} INFO - task = classification
-    [flaml.automl.logger: 08-24 03:53:53] {1763} INFO - Evaluation method: cv
-    [flaml.automl.logger: 08-24 03:54:21] {1862} INFO - Minimizing error metric: 1-f1
-    [flaml.automl.logger: 08-24 03:54:21] {1979} INFO - List of ML learners in AutoML Run: ['lgbm']
-    [flaml.automl.logger: 08-24 03:54:21] {2282} INFO - iteration 0, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:24] {2417} INFO - Estimated sufficient time budget=26088s. Estimated necessary time budget=26s.
-    [flaml.automl.logger: 08-24 03:54:24] {2466} INFO -  at 35.4s,	estimator lgbm's best error=1.0000,	best estimator lgbm's best error=1.0000
-    [flaml.automl.logger: 08-24 03:54:24] {2282} INFO - iteration 1, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:26] {2466} INFO -  at 38.1s,	estimator lgbm's best error=1.0000,	best estimator lgbm's best error=1.0000
-    [flaml.automl.logger: 08-24 03:54:26] {2282} INFO - iteration 2, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:29] {2466} INFO -  at 40.9s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
-    [flaml.automl.logger: 08-24 03:54:29] {2282} INFO - iteration 3, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:32] {2466} INFO -  at 43.7s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
-    [flaml.automl.logger: 08-24 03:54:32] {2282} INFO - iteration 4, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:35] {2466} INFO -  at 46.7s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
-    [flaml.automl.logger: 08-24 03:54:35] {2282} INFO - iteration 5, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:39] {2466} INFO -  at 50.2s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
-    [flaml.automl.logger: 08-24 03:54:39] {2282} INFO - iteration 6, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:41] {2466} INFO -  at 52.9s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
-    [flaml.automl.logger: 08-24 03:54:41] {2282} INFO - iteration 7, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:44] {2466} INFO -  at 55.5s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
-    [flaml.automl.logger: 08-24 03:54:44] {2282} INFO - iteration 8, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:50] {2466} INFO -  at 61.5s,	estimator lgbm's best error=0.3269,	best estimator lgbm's best error=0.3269
-    [flaml.automl.logger: 08-24 03:54:50] {2282} INFO - iteration 9, current learner lgbm
-    [flaml.automl.logger: 08-24 03:54:56] {2466} INFO -  at 67.7s,	estimator lgbm's best error=0.3269,	best estimator lgbm's best error=0.3269
-    [flaml.automl.logger: 08-24 03:54:56] {2282} INFO - iteration 10, current learner lgbm
-    [flaml.automl.logger: 08-24 03:55:02] {2466} INFO -  at 73.3s,	estimator lgbm's best error=0.3269,	best estimator lgbm's best error=0.3269
-    [flaml.automl.logger: 08-24 03:55:02] {2282} INFO - iteration 11, current learner lgbm
-    [flaml.automl.logger: 08-24 03:55:12] {2466} INFO -  at 83.4s,	estimator lgbm's best error=0.2623,	best estimator lgbm's best error=0.2623
-    [flaml.automl.logger: 08-24 03:55:12] {2282} INFO - iteration 12, current learner lgbm
-    [flaml.automl.logger: 08-24 03:55:18] {2466} INFO -  at 89.4s,	estimator lgbm's best error=0.2623,	best estimator lgbm's best error=0.2623
-    [flaml.automl.logger: 08-24 03:55:18] {2282} INFO - iteration 13, current learner lgbm
-    [flaml.automl.logger: 08-24 03:55:26] {2466} INFO -  at 97.7s,	estimator lgbm's best error=0.2623,	best estimator lgbm's best error=0.2623
-    [flaml.automl.logger: 08-24 03:55:26] {2282} INFO - iteration 14, current learner lgbm
-    [flaml.automl.logger: 08-24 03:55:38] {2466} INFO -  at 109.9s,	estimator lgbm's best error=0.2308,	best estimator lgbm's best error=0.2308
-    [flaml.automl.logger: 08-24 03:55:38] {2282} INFO - iteration 15, current learner lgbm
-    [flaml.automl.logger: 08-24 03:55:45] {2466} INFO -  at 116.5s,	estimator lgbm's best error=0.2308,	best estimator lgbm's best error=0.2308
-    [flaml.automl.logger: 08-24 03:55:45] {2282} INFO - iteration 16, current learner lgbm
-    [flaml.automl.logger: 08-24 03:56:09] {2466} INFO -  at 140.2s,	estimator lgbm's best error=0.2308,	best estimator lgbm's best error=0.2308
-    [flaml.automl.logger: 08-24 03:56:09] {2282} INFO - iteration 17, current learner lgbm
-    [flaml.automl.logger: 08-24 03:56:13] {2466} INFO -  at 144.7s,	estimator lgbm's best error=0.2308,	best estimator lgbm's best error=0.2308
-    [flaml.automl.logger: 08-24 03:56:13] {2282} INFO - iteration 18, current learner lgbm
-    [flaml.automl.logger: 08-24 03:56:59] {2466} INFO -  at 190.4s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
-    [flaml.automl.logger: 08-24 03:56:59] {2282} INFO - iteration 19, current learner lgbm
-    [flaml.automl.logger: 08-24 03:57:14] {2466} INFO -  at 205.3s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
-    [flaml.automl.logger: 08-24 03:57:14] {2282} INFO - iteration 20, current learner lgbm
-    [flaml.automl.logger: 08-24 03:59:27] {2466} INFO -  at 338.4s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
-    [flaml.automl.logger: 08-24 03:59:27] {2282} INFO - iteration 21, current learner lgbm
-    [flaml.automl.logger: 08-24 04:00:13] {2466} INFO -  at 384.6s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
-    [flaml.automl.logger: 08-24 04:00:13] {2282} INFO - iteration 22, current learner lgbm
-    [flaml.automl.logger: 08-24 04:00:45] {2466} INFO -  at 417.2s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
-    [flaml.automl.logger: 08-24 04:00:45] {2282} INFO - iteration 23, current learner lgbm
-    [flaml.automl.logger: 08-24 04:01:39] {2466} INFO -  at 470.2s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
-    [flaml.automl.logger: 08-24 04:01:39] {2282} INFO - iteration 24, current learner lgbm
-    [flaml.automl.logger: 08-24 04:02:14] {2466} INFO -  at 505.5s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
-    [flaml.automl.logger: 08-24 04:02:14] {2282} INFO - iteration 25, current learner lgbm
-    [flaml.automl.logger: 08-24 04:03:48] {2466} INFO -  at 599.2s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
-    [flaml.automl.logger: 08-24 04:03:48] {2282} INFO - iteration 26, current learner lgbm
-    [flaml.automl.logger: 08-24 04:04:34] {2466} INFO -  at 645.7s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
-    [flaml.automl.logger: 08-24 04:04:34] {2282} INFO - iteration 27, current learner lgbm
-    [flaml.automl.logger: 08-24 04:04:48] {2466} INFO -  at 660.1s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
-    [flaml.automl.logger: 08-24 04:04:48] {2282} INFO - iteration 28, current learner lgbm
-    [flaml.automl.logger: 08-24 04:26:38] {2466} INFO -  at 1969.3s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
-    [flaml.automl.logger: 08-24 04:26:38] {2282} INFO - iteration 29, current learner lgbm
-    [flaml.automl.logger: 08-24 04:30:33] {2466} INFO -  at 2204.5s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
-    [flaml.automl.logger: 08-24 04:30:33] {2282} INFO - iteration 30, current learner lgbm
-    [flaml.automl.logger: 08-24 04:35:35] {2466} INFO -  at 2506.4s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
-    [flaml.automl.logger: 08-24 04:35:35] {2282} INFO - iteration 31, current learner lgbm
-    [flaml.automl.logger: 08-24 04:41:12] {2466} INFO -  at 2843.9s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
-    [flaml.automl.logger: 08-24 04:41:12] {2282} INFO - iteration 32, current learner lgbm
-    [flaml.automl.logger: 08-24 04:42:45] {2466} INFO -  at 2936.5s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
-    [flaml.automl.logger: 08-24 04:42:45] {2282} INFO - iteration 33, current learner lgbm
-    [flaml.automl.logger: 08-24 04:45:35] {2466} INFO -  at 3106.5s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
-    [flaml.automl.logger: 08-24 04:45:35] {2282} INFO - iteration 34, current learner lgbm
-    [flaml.automl.logger: 08-24 04:46:00] {2466} INFO -  at 3131.3s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
-    [flaml.automl.logger: 08-24 04:46:00] {2282} INFO - iteration 35, current learner lgbm
-    [flaml.automl.logger: 08-24 04:50:33] {2466} INFO -  at 3404.7s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
-    [flaml.automl.logger: 08-24 04:50:33] {803} INFO - logging best model lgbm
-    [flaml.automl.logger: 08-24 04:51:30] {2724} INFO - retrain lgbm for 56.6s
-    [flaml.automl.logger: 08-24 04:51:30] {2727} INFO - retrained model: LGBMClassifier(is_unbalance=True, learning_rate=np.float64(0.0952587288316166),
-                   max_bin=127, min_child_samples=122, n_estimators=342, n_jobs=-1,
-                   num_leaves=266, reg_alpha=0.0009765625,
-                   reg_lambda=np.float64(9.461164679607368), verbose=-1)
-    [flaml.automl.logger: 08-24 04:51:30] {2729} INFO - Best MLflow run name: serious-cod-383_child_31
-    [flaml.automl.logger: 08-24 04:51:30] {2730} INFO - Best MLflow run id: a2cc9657bd7d430b83851f062028cc64
-    [flaml.automl.logger: 08-24 04:51:32] {2771} WARNING - Exception for record_state task run_18f64fcf34e147e19ca6caf85c4b8213_requirements_updated: No such file or directory: '/Users/leorfinkelberg/Documents/Competitions/e_cup_2025_ml_challenge/mlruns/0/18f64fcf34e147e19ca6caf85c4b8213/artifacts/model/requirements.txt'
-    [flaml.automl.logger: 08-24 04:51:32] {2009} INFO - fit succeeded
-    [flaml.automl.logger: 08-24 04:51:32] {2010} INFO - Time taken to find the best model: 2843.910061120987
+    [flaml.automl.logger: 08-24 14:27:34] {1752} INFO - task = classification
+    [flaml.automl.logger: 08-24 14:27:34] {1763} INFO - Evaluation method: cv
+    [flaml.automl.logger: 08-24 14:28:02] {1862} INFO - Minimizing error metric: 1-f1
+    [flaml.automl.logger: 08-24 14:28:02] {1979} INFO - List of ML learners in AutoML Run: ['lgbm']
+    [flaml.automl.logger: 08-24 14:28:02] {2282} INFO - iteration 0, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:05] {2417} INFO - Estimated sufficient time budget=27836s. Estimated necessary time budget=28s.
+    [flaml.automl.logger: 08-24 14:28:05] {2466} INFO -  at 36.5s,	estimator lgbm's best error=1.0000,	best estimator lgbm's best error=1.0000
+    [flaml.automl.logger: 08-24 14:28:05] {2282} INFO - iteration 1, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:08] {2466} INFO -  at 39.3s,	estimator lgbm's best error=1.0000,	best estimator lgbm's best error=1.0000
+    [flaml.automl.logger: 08-24 14:28:08] {2282} INFO - iteration 2, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:11] {2466} INFO -  at 42.3s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
+    [flaml.automl.logger: 08-24 14:28:11] {2282} INFO - iteration 3, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:14] {2466} INFO -  at 45.3s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
+    [flaml.automl.logger: 08-24 14:28:14] {2282} INFO - iteration 4, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:17] {2466} INFO -  at 48.5s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
+    [flaml.automl.logger: 08-24 14:28:17] {2282} INFO - iteration 5, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:20] {2466} INFO -  at 52.2s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
+    [flaml.automl.logger: 08-24 14:28:20] {2282} INFO - iteration 6, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:23] {2466} INFO -  at 55.1s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
+    [flaml.automl.logger: 08-24 14:28:23] {2282} INFO - iteration 7, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:26] {2466} INFO -  at 57.8s,	estimator lgbm's best error=0.3918,	best estimator lgbm's best error=0.3918
+    [flaml.automl.logger: 08-24 14:28:26] {2282} INFO - iteration 8, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:32] {2466} INFO -  at 64.0s,	estimator lgbm's best error=0.3269,	best estimator lgbm's best error=0.3269
+    [flaml.automl.logger: 08-24 14:28:32] {2282} INFO - iteration 9, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:39] {2466} INFO -  at 70.6s,	estimator lgbm's best error=0.3269,	best estimator lgbm's best error=0.3269
+    [flaml.automl.logger: 08-24 14:28:39] {2282} INFO - iteration 10, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:45] {2466} INFO -  at 76.5s,	estimator lgbm's best error=0.3269,	best estimator lgbm's best error=0.3269
+    [flaml.automl.logger: 08-24 14:28:45] {2282} INFO - iteration 11, current learner lgbm
+    [flaml.automl.logger: 08-24 14:28:55] {2466} INFO -  at 87.1s,	estimator lgbm's best error=0.2623,	best estimator lgbm's best error=0.2623
+    [flaml.automl.logger: 08-24 14:28:55] {2282} INFO - iteration 12, current learner lgbm
+    [flaml.automl.logger: 08-24 14:29:02] {2466} INFO -  at 93.3s,	estimator lgbm's best error=0.2623,	best estimator lgbm's best error=0.2623
+    [flaml.automl.logger: 08-24 14:29:02] {2282} INFO - iteration 13, current learner lgbm
+    [flaml.automl.logger: 08-24 14:29:10] {2466} INFO -  at 101.9s,	estimator lgbm's best error=0.2623,	best estimator lgbm's best error=0.2623
+    [flaml.automl.logger: 08-24 14:29:10] {2282} INFO - iteration 14, current learner lgbm
+    [flaml.automl.logger: 08-24 14:29:23] {2466} INFO -  at 114.5s,	estimator lgbm's best error=0.2308,	best estimator lgbm's best error=0.2308
+    [flaml.automl.logger: 08-24 14:29:23] {2282} INFO - iteration 15, current learner lgbm
+    [flaml.automl.logger: 08-24 14:29:30] {2466} INFO -  at 121.5s,	estimator lgbm's best error=0.2308,	best estimator lgbm's best error=0.2308
+    [flaml.automl.logger: 08-24 14:29:30] {2282} INFO - iteration 16, current learner lgbm
+    [flaml.automl.logger: 08-24 14:29:54] {2466} INFO -  at 146.0s,	estimator lgbm's best error=0.2308,	best estimator lgbm's best error=0.2308
+    [flaml.automl.logger: 08-24 14:29:54] {2282} INFO - iteration 17, current learner lgbm
+    [flaml.automl.logger: 08-24 14:29:59] {2466} INFO -  at 150.7s,	estimator lgbm's best error=0.2308,	best estimator lgbm's best error=0.2308
+    [flaml.automl.logger: 08-24 14:29:59] {2282} INFO - iteration 18, current learner lgbm
+    [flaml.automl.logger: 08-24 14:30:47] {2466} INFO -  at 198.3s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
+    [flaml.automl.logger: 08-24 14:30:47] {2282} INFO - iteration 19, current learner lgbm
+    [flaml.automl.logger: 08-24 14:31:02] {2466} INFO -  at 213.3s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
+    [flaml.automl.logger: 08-24 14:31:02] {2282} INFO - iteration 20, current learner lgbm
+    [flaml.automl.logger: 08-24 14:33:17] {2466} INFO -  at 348.3s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
+    [flaml.automl.logger: 08-24 14:33:17] {2282} INFO - iteration 21, current learner lgbm
+    [flaml.automl.logger: 08-24 14:34:05] {2466} INFO -  at 396.8s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
+    [flaml.automl.logger: 08-24 14:34:05] {2282} INFO - iteration 22, current learner lgbm
+    [flaml.automl.logger: 08-24 14:34:38] {2466} INFO -  at 430.2s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
+    [flaml.automl.logger: 08-24 14:34:38] {2282} INFO - iteration 23, current learner lgbm
+    [flaml.automl.logger: 08-24 14:35:33] {2466} INFO -  at 484.3s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
+    [flaml.automl.logger: 08-24 14:35:33] {2282} INFO - iteration 24, current learner lgbm
+    [flaml.automl.logger: 08-24 14:36:08] {2466} INFO -  at 520.1s,	estimator lgbm's best error=0.1964,	best estimator lgbm's best error=0.1964
+    [flaml.automl.logger: 08-24 14:36:08] {2282} INFO - iteration 25, current learner lgbm
+    [flaml.automl.logger: 08-24 14:37:43] {2466} INFO -  at 614.7s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
+    [flaml.automl.logger: 08-24 14:37:43] {2282} INFO - iteration 26, current learner lgbm
+    [flaml.automl.logger: 08-24 14:38:31] {2466} INFO -  at 662.9s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
+    [flaml.automl.logger: 08-24 14:38:31] {2282} INFO - iteration 27, current learner lgbm
+    [flaml.automl.logger: 08-24 14:38:46] {2466} INFO -  at 677.7s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
+    [flaml.automl.logger: 08-24 14:38:46] {2282} INFO - iteration 28, current learner lgbm
+    [flaml.automl.logger: 08-24 14:47:02] {2466} INFO -  at 1174.0s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
+    [flaml.automl.logger: 08-24 14:47:02] {2282} INFO - iteration 29, current learner lgbm
+    [flaml.automl.logger: 08-24 14:47:52] {2466} INFO -  at 1223.8s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
+    [flaml.automl.logger: 08-24 14:47:52] {2282} INFO - iteration 30, current learner lgbm
+    [flaml.automl.logger: 08-24 14:49:28] {2466} INFO -  at 1319.6s,	estimator lgbm's best error=0.1960,	best estimator lgbm's best error=0.1960
+    [flaml.automl.logger: 08-24 14:49:28] {2282} INFO - iteration 31, current learner lgbm
+    [flaml.automl.logger: 08-24 14:50:53] {2466} INFO -  at 1404.9s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 14:50:53] {2282} INFO - iteration 32, current learner lgbm
+    [flaml.automl.logger: 08-24 14:52:26] {2466} INFO -  at 1498.1s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 14:52:26] {2282} INFO - iteration 33, current learner lgbm
+    [flaml.automl.logger: 08-24 14:55:17] {2466} INFO -  at 1668.8s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 14:55:17] {2282} INFO - iteration 34, current learner lgbm
+    [flaml.automl.logger: 08-24 14:55:42] {2466} INFO -  at 1693.4s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 14:55:42] {2282} INFO - iteration 35, current learner lgbm
+    [flaml.automl.logger: 08-24 15:00:18] {2466} INFO -  at 1969.9s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 15:00:18] {2282} INFO - iteration 36, current learner lgbm
+    [flaml.automl.logger: 08-24 15:00:45] {2466} INFO -  at 1996.5s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 15:00:45] {2282} INFO - iteration 37, current learner lgbm
+    [flaml.automl.logger: 08-24 15:01:37] {2466} INFO -  at 2048.8s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 15:01:37] {2282} INFO - iteration 38, current learner lgbm
+    [flaml.automl.logger: 08-24 15:03:35] {2466} INFO -  at 2166.3s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 15:03:35] {2282} INFO - iteration 39, current learner lgbm
+    [flaml.automl.logger: 08-24 15:04:27] {2466} INFO -  at 2219.0s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 15:04:27] {2282} INFO - iteration 40, current learner lgbm
+    [flaml.automl.logger: 08-24 15:06:47] {2466} INFO -  at 2358.2s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 15:06:47] {2282} INFO - iteration 41, current learner lgbm
+    [flaml.automl.logger: 08-24 15:07:07] {2466} INFO -  at 2378.7s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 15:07:07] {2282} INFO - iteration 42, current learner lgbm
+    [flaml.automl.logger: 08-24 15:13:04] {2466} INFO -  at 2735.5s,	estimator lgbm's best error=0.1915,	best estimator lgbm's best error=0.1915
+    [flaml.automl.logger: 08-24 15:13:04] {2282} INFO - iteration 43, current learner lgbm
+    [flaml.automl.logger: 08-24 15:15:46] {2466} INFO -  at 2898.2s,	estimator lgbm's best error=0.1891,	best estimator lgbm's best error=0.1891
+    [flaml.automl.logger: 08-24 15:15:46] {2282} INFO - iteration 44, current learner lgbm
+    [flaml.automl.logger: 08-24 15:17:15] {2466} INFO -  at 2986.4s,	estimator lgbm's best error=0.1891,	best estimator lgbm's best error=0.1891
+    [flaml.automl.logger: 08-24 15:17:15] {2282} INFO - iteration 45, current learner lgbm
+    [flaml.automl.logger: 08-24 15:18:03] {2466} INFO -  at 3035.1s,	estimator lgbm's best error=0.1891,	best estimator lgbm's best error=0.1891
+    [flaml.automl.logger: 08-24 15:18:03] {2282} INFO - iteration 46, current learner lgbm
+    [flaml.automl.logger: 08-24 15:27:21] {2466} INFO -  at 3592.2s,	estimator lgbm's best error=0.1879,	best estimator lgbm's best error=0.1879
+    [flaml.automl.logger: 08-24 15:27:21] {803} INFO - logging best model lgbm
+    [flaml.automl.logger: 08-24 15:30:57] {2724} INFO - retrain lgbm for 216.4s
+    [flaml.automl.logger: 08-24 15:30:57] {2727} INFO - retrained model: LGBMClassifier(colsample_bytree=np.float64(0.8011498227432036),
+                   is_unbalance=True, learning_rate=np.float64(0.0688619952134549),
+                   max_bin=255, min_child_samples=128, n_estimators=4837, n_jobs=-1,
+                   num_leaves=111, reg_alpha=np.float64(0.016900277209403555),
+                   reg_lambda=np.float64(1.5919392250234898), verbose=-1)
+    [flaml.automl.logger: 08-24 15:30:57] {2729} INFO - Best MLflow run name: incongruous-fawn-779_child_46
+    [flaml.automl.logger: 08-24 15:30:57] {2730} INFO - Best MLflow run id: a737471c05c44263b08a2cd130cd8de8
+    [flaml.automl.logger: 08-24 15:31:00] {2771} WARNING - Exception for record_state task run_5f79b4af98cf49a79f8bdb49ca2a31f6_requirements_updated: No such file or directory: '/Users/leorfinkelberg/Documents/Competitions/e_cup_2025_ml_challenge/mlruns/0/5f79b4af98cf49a79f8bdb49ca2a31f6/artifacts/model/requirements.txt'
+    [flaml.automl.logger: 08-24 15:31:00] {2009} INFO - fit succeeded
+    [flaml.automl.logger: 08-24 15:31:00] {2010} INFO - Time taken to find the best model: 3592.2205741405487
     """
     )
     return
