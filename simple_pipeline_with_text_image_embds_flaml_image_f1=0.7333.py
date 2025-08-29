@@ -1,26 +1,93 @@
 import marimo
 
-__generated_with = "0.14.17"
+__generated_with = "0.15.1"
 app = marimo.App(width="medium")
 
 
 @app.cell
 def _():
     import marimo as mo
+    import typing as t
     import numpy as np
     import pandas as pd
     import matplotlib.pyplot as plt
     import mlflow
     import category_encoders as ce
+    import pathlib
 
+    import lightgbm as lgb
+
+    import shap
+
+    from sklearn.pipeline import Pipeline
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import classification_report, f1_score, matthews_corrcoef
     from sklearn.preprocessing import QuantileTransformer
     from sklearn.decomposition import PCA, KernelPCA
+    from sklearn.ensemble import VotingClassifier, HistGradientBoostingClassifier
+    from sklearn.compose import ColumnTransformer
+
+
+    from tqdm import tqdm
 
     from flaml.automl.automl import AutoML
+    from flaml.ml import sklearn_metric_loss_score  
     from flaml import tune
-    return AutoML, PCA, QuantileTransformer, ce, mlflow, mo, np, pd
+    return (
+        AutoML,
+        ColumnTransformer,
+        HistGradientBoostingClassifier,
+        PCA,
+        Pipeline,
+        QuantileTransformer,
+        VotingClassifier,
+        ce,
+        f1_score,
+        lgb,
+        mo,
+        np,
+        pathlib,
+        pd,
+        plt,
+        shap,
+        sklearn_metric_loss_score,
+        t,
+        tqdm,
+        train_test_split,
+    )
+
+
+@app.cell
+def _():
+    TARGET_COL_NAME = "resolution"
+    TASK = "classification"
+    CLASS_WEIGHT_BALANCED = "balanced"
+    SEED = 34534588
+    IMAGE_N_COMPONENTS = 100
+    TEXT_N_COMPONENTS = 50 
+    return (
+        CLASS_WEIGHT_BALANCED,
+        IMAGE_N_COMPONENTS,
+        SEED,
+        TARGET_COL_NAME,
+        TASK,
+        TEXT_N_COMPONENTS,
+    )
+
+
+@app.cell
+def _(pathlib, pd):
+    def save_submission(model, X_test: pd.DataFrame) -> None:
+        PATH_TO_SUBMISSION_FILE = "./submission.csv"
+    
+        pd.DataFrame({
+            "id": X_test.index, 
+            "prediction": model.predict(X_test),
+        }).to_csv(PATH_TO_SUBMISSION_FILE, index=False)
+
+        if not pathlib.Path(PATH_TO_SUBMISSION_FILE).exists():
+            raise FileNotFoundError(f"Error! File {PATH_TO_SUBMISSION_FILE} not found ...")
+    return (save_submission,)
 
 
 @app.cell
@@ -42,12 +109,245 @@ def _(np, pd):
 
 
 @app.cell
-def _():
-    TASK = "classification"
-    SEED = 34534588
-    IMAGE_N_COMPONENTS = 100
-    TEXT_N_COMPONENTS = 50 
-    return IMAGE_N_COMPONENTS, SEED, TASK, TEXT_N_COMPONENTS
+def _(VotingClassifier, lgb, np, pd, t, tqdm):
+    def make_predict_with_top_k_models(
+        X_train: pd.DataFrame,
+        y_train: np.typing.ArrayLike,
+        X_test: pd.DataFrame,
+        path_to_log_file: str, 
+        top_k: int = 5,
+        voting: str = "soft",
+        weights: t.Optional[np.typing.ArrayLike] = None,
+    ) -> np.typing.ArrayLike:
+        trials_log = pd.read_json(path_to_log_file, lines=True)
+    
+        _val_loss_groups = trials_log.groupby("validation_loss")["config"] \
+            .agg("count") \
+            .sort_index(ascending=True) \
+            .iloc[:top_k]
+    
+        val_loss_groups = _val_loss_groups[_val_loss_groups == 1].index.tolist()
+        _mask = trials_log["validation_loss"].isin(val_loss_groups)
+
+        models = []
+        for record in tqdm(trials_log[_mask].sort_values("validation_loss").itertuples(), total=top_k):
+            print(f"MODEL CONFIG: {record.config}")
+            model = lgb.LGBMClassifier(**record.config)
+            model.fit(X_train, y_train)
+            models.append((f"clf-{record.record_id}", model))
+            print(f"FITTED: {model.fitted_}")
+        
+            negs_poss = pd.Series(model.predict(X_test)).value_counts().values
+            print(f"0/1: {negs_poss[0]} / {negs_poss[1]}")
+
+        voter = VotingClassifier(
+            estimators=models,
+            voting="soft",
+            weights=weights,
+        )
+        voter.fit(X_train, y_train)
+    
+        return voter.predict(X_test)
+    return (make_predict_with_top_k_models,)
+
+
+@app.cell
+def _(SEED, f1_score, np, pd, plt, train_test_split):
+    def get_performance_flaml_plot(
+        X_train: pd.DataFrame,
+        y_train: np.typing.ArrayLike,
+        time_budgets: tuple[int] = (600, 1200, 1800, 2400, 3600),
+        metric: str = "f1",
+        custom_hp: dict = {
+            "lgbm": {
+                "is_unbalance": {
+                    "domain": True,
+                },
+            }
+        },
+        task: str = "classification",
+        seed: int = SEED,
+        figsize: tuple[int, int] = (8, 6)
+    ) -> None:
+        from flaml.automl.automl import AutoML
+
+        fig, ax = plt.subplots(figsize=figsize)
+        ax.set_facecolor("#FAFAFA")
+
+        X_sub_train, X_val, y_sub_train, y_val = train_test_split(
+            X_train,
+            y_train,
+            stratify=y_train,
+            test_size=0.15,
+        )
+
+        metrics = []
+
+        for time_budget in time_budgets:
+            print(f"TIME BUDGET: {time_budget}")
+            automl = AutoML()
+            automl.fit(
+                X_sub_train,
+                y_sub_train,
+                task=task,
+                time_budget=time_budget,
+                estimator_list=["lgbm"],
+                eval_method="cv",
+                n_splits=3,
+                metric=metric,
+                split_type="stratified",
+                custom_hp=custom_hp,
+                seed=seed,
+            )
+            metrics.append(f1_score(y_val, automl.predict(X_val)))
+
+        ax.plot(time_budgets, metrics, marker="o", color="blue")
+        ax.set_xlabel("time budget, sec")
+        ax.set_ylabel(f"metric: {metric}")
+        fig.tight_layout()
+    return
+
+
+@app.cell
+def _(
+    CLASS_WEIGHT_BALANCED,
+    ColumnTransformer,
+    HistGradientBoostingClassifier,
+    Pipeline,
+    SEED,
+    TARGET_COL_NAME,
+    pd,
+    plt,
+    shap,
+    sklearn_metric_loss_score,
+    t,
+    train_test_split,
+):
+    def _get_col_names_wo_target_name(
+        train: pd.DataFrame,
+        use_only_numeric_cols: bool = True,
+    ) -> list[str]:
+        if use_only_numeric_cols:
+            columns: list[str] = train.columns.tolist()
+            columns.remove(TARGET_COL_NAME)
+
+        return train[columns].select_dtypes(exclude=["object"]).columns.tolist()
+
+    def _stratified_background_sample(
+        train: pd.DataFrame,
+        n_samples=100
+    ) -> pd.DataFrame:
+        columns: list[str] = _get_col_names_wo_target_name(train)
+        X, y = train[columns], train[TARGET_COL_NAME]
+
+        n_minority = sum(y == 1)
+        n_majority = sum(y == 0)
+
+        sample_majority = X[y == 0].sample(
+            n=min(n_samples // 2, n_majority), 
+            random_state=42
+        )
+        sample_minority = X[y == 1].sample(
+            n=min(n_samples // 2, n_minority),
+            random_state=42
+        )
+
+        return pd.concat([sample_majority, sample_minority])
+
+    def get_shap_values(
+        *,
+        train: pd.DataFrame,
+        model_params: t.Optional[dict] = None,
+        seed: int = SEED,
+        target_col_name: str = TARGET_COL_NAME,
+        val_size: float = 0.25,
+        metric: str = "f1",
+        use_categoric_cols: bool = False,
+        figsize: tuple[int, int] = (80, 180),
+    ) -> None:
+        numerical_cols: list[str] = _get_col_names_wo_target_name(train)
+        X_train, y_train = train[numerical_cols], train[TARGET_COL_NAME]
+
+        X_sub_train, X_val, y_sub_train, y_val = train_test_split(
+            X_train, y_train,
+            test_size=val_size,
+            stratify=y_train,
+            random_state=seed,
+        )
+
+        preprocessor = ColumnTransformer(
+            transformers=[("num", "passthrough", numerical_cols)]
+        )
+
+        base_model_params = {
+            "max_iter": 100,
+            "learning_rate": 0.3,
+            "max_depth": 5,
+            "max_features": 0.8,
+            "class_weight": CLASS_WEIGHT_BALANCED,
+            "early_stopping": True,
+        }
+
+        if model_params is not None:
+            base_model_params.update(model_params)
+
+        classifier = HistGradientBoostingClassifier(**base_model_params)
+
+        pipeline = Pipeline([
+            ("preprocessor", preprocessor),
+            ("classifier", classifier)
+        ])
+
+        pipeline.fit(X_sub_train, y_sub_train)
+
+        loss_score_train = sklearn_metric_loss_score(metric, pipeline.predict(X_sub_train), y_sub_train)
+        loss_score_val = sklearn_metric_loss_score(metric, pipeline.predict(X_val), y_val)
+
+        print(f"{metric.upper()}_train: {loss_score_train:.3g}")
+        print(f"{metric.upper()}_val: {loss_score_val:.3g}")
+
+        background_data = _stratified_background_sample(train, n_samples=100)
+
+        explainer = shap.TreeExplainer(
+            pipeline.named_steps["classifier"], 
+            data=background_data,
+            model_output="probability"
+        )
+
+        shap_values_val = explainer.shap_values(pipeline.named_steps["preprocessor"].transform(X_val))
+
+        fig = plt.figure(figsize=figsize)
+        plt.subplot(3, 1, 1)
+        shap.summary_plot(
+            shap_values_val, 
+            X_val,
+            show=False,
+        )
+        plt.title("Both Classes")
+
+        fig = plt.figure(figsize=figsize)
+        plt.subplot(3, 1, 2)
+        neg_mask = y_val == 0
+        shap.summary_plot(
+            shap_values_val[neg_mask], 
+            X_val[neg_mask],
+            show=False,
+        )
+        plt.title("Majority Class")
+
+        fig = plt.figure(figsize=figsize)
+        plt.subplot(3, 1, 3)
+        pos_mask = y_val == 1
+        shap.summary_plot(
+            shap_values_val[pos_mask], 
+            X_val[pos_mask],
+            show=False,
+        )
+        plt.title("Minority Class")
+
+        plt.tight_layout()
+        plt.show()
+    return (get_shap_values,)
 
 
 @app.cell
@@ -82,8 +382,8 @@ def _(train):
 
 @app.cell
 def _(pd):
-    train_with_text_embds = pd.read_csv("./ml_ozon_сounterfeit_data/train_with_text_embeddings_all-MiniLM-L6-v2.csv", index_col=0)
-    test_with_text_embds = pd.read_csv("./ml_ozon_сounterfeit_data//test_with_text_embeddings_all-MiniLM-L6-v2.csv", index_col=0)
+    train_with_text_embds = pd.read_csv("./ml_ozon_сounterfeit_data/train_with_text_embeddings_after_clean_all-MiniLM-L6-v2.csv", index_col=0)
+    test_with_text_embds = pd.read_csv("./ml_ozon_сounterfeit_data//test_with_text_embeddings_after_clean_all-MiniLM-L6-v2.csv", index_col=0)
     return test_with_text_embds, train_with_text_embds
 
 
@@ -99,25 +399,14 @@ def _(load_embeddings):
 
 @app.cell
 def _(train_with_text_embds):
-    train_with_text_embds
+    desc_embds_names = [col_name for col_name in train_with_text_embds if col_name.startswith("desc_embed")]
+    train_with_text_embds[desc_embds_names].iloc[79_124, :].plot()
     return
 
 
 @app.cell
 def _(test_with_text_embds):
     test_with_text_embds
-    return
-
-
-@app.cell
-def _(train_with_text_embds):
-    train_with_text_embds.shape
-    return
-
-
-@app.cell
-def _(train_with_image_embds):
-    train_with_image_embds.shape
     return
 
 
@@ -175,18 +464,6 @@ def _():
 
 
 @app.cell
-def _(train_with_text_image_embds):
-    train_with_text_image_embds.shape
-    return
-
-
-@app.cell
-def _(test_with_text_image_embds):
-    test_with_text_image_embds.shape
-    return
-
-
-@app.cell
 def _(test_with_text_image_embds, train_with_text_image_embds):
     cols_without_target = train_with_text_image_embds.columns.tolist()
     cols_without_target.remove("resolution")
@@ -196,18 +473,6 @@ def _(test_with_text_image_embds, train_with_text_image_embds):
 
     X_test = test_with_text_image_embds[cols_without_target]
     return X_test, X_train, y_train
-
-
-@app.cell
-def _(X_train):
-    X_train.shape
-    return
-
-
-@app.cell
-def _(X_test):
-    X_test.shape
-    return
 
 
 @app.cell
@@ -255,18 +520,6 @@ def _(X_test_encoded, X_train_encoded, numeric_cols):
     X_train_with_numeric_cols = X_train_encoded[numeric_cols]
     X_test_with_numeric_cols = X_test_encoded[numeric_cols]
     return X_test_with_numeric_cols, X_train_with_numeric_cols
-
-
-@app.cell
-def _(X_train_with_numeric_cols):
-    X_train_with_numeric_cols.shape
-    return
-
-
-@app.cell
-def _(X_test_with_numeric_cols):
-    X_test_with_numeric_cols.shape
-    return
 
 
 @app.cell
@@ -327,18 +580,6 @@ def _(
         index=X_test_with_numeric_cols_wo_nan.index
     )
     return X_test_image_embds_pca, X_train_image_embds_pca
-
-
-@app.cell
-def _(X_train_image_embds_pca):
-    X_train_image_embds_pca.shape
-    return
-
-
-@app.cell
-def _(X_test_image_embds_pca):
-    X_test_image_embds_pca.shape
-    return
 
 
 @app.cell
@@ -431,18 +672,6 @@ def _(
 
 
 @app.cell
-def _(X_train_final):
-    X_train_final.shape
-    return
-
-
-@app.cell
-def _(X_test_final):
-    X_test_final.shape
-    return
-
-
-@app.cell
 def _(QuantileTransformer, SEED):
     quantile_transformer = QuantileTransformer(output_distribution="normal", n_quantiles=350, random_state=SEED)
     return (quantile_transformer,)
@@ -461,19 +690,9 @@ def _(X_test_final, original_cols, quantile_transformer):
 
 
 @app.cell
-def _(X_train_final):
-    X_train_final.shape
-    return
-
-
-@app.cell
-def _(X_test_final):
-    X_test_final.shape
-    return
-
-
-@app.cell
 def _(np, y_train):
+    scale_pos_weight = np.sum(y_train == 0) / np.sum(y_train == 1)
+
     custom_hp = {
         "lgbm": {
             "is_unbalance": {
@@ -498,8 +717,8 @@ def _(np, y_train):
 def _(AutoML, SEED, TASK, X_train_final, custom_hp, y_train):
     ### ЗАПУСК С РАННЕЙ ОСТАНОВКОЙ
 
-    automl = AutoML()
-    automl.fit(
+    automl_with_early_stopping = AutoML()
+    automl_with_early_stopping.fit(
         X_train_final,
         y_train,
         task=TASK,
@@ -516,39 +735,37 @@ def _(AutoML, SEED, TASK, X_train_final, custom_hp, y_train):
         early_stop=True,
         seed=SEED,
     )
-    return (automl,)
+    return
 
 
 @app.cell
-def _(AutoML, SEED, TASK, X_train_final, custom_hp, mlflow, y_train):
+def _(AutoML, SEED, TASK, X_train_final, custom_hp, y_train):
     ### ЗАПУСК БЕЗ РАННЕЙ ОСТАНОВКИ
 
-    automl = AutoML()
-    with mlflow.start_run():
-        automl.fit(
-            X_train_final,
-            y_train,
-            task=TASK,
-            time_budget=3600,
-            estimator_list=(
-                "lgbm",
-                # "xgboost",
-                # "catboost"
-            ),
-            eval_method="cv",
-            n_splits=3,
-            metric="f1",
-            split_type="stratified",
-            custom_hp=custom_hp,
-            seed=SEED,
-        )
-    return (automl,)
+    automl_wo_early_stopping = AutoML()
+    automl_wo_early_stopping.fit(
+        X_train_final,
+        y_train,
+        task=TASK,
+        time_budget=3600,
+        estimator_list=["lgbm"],
+        eval_method="holdout",
+        metric="f1",
+        split_type="stratified",
+        custom_hp=custom_hp,
+        seed=SEED,
+        log_file_name="./log_flaml_tuning.log",
+        log_type="all",
+    )
+    return (automl_wo_early_stopping,)
 
 
 @app.cell
 def _(mo):
     mo.md(
         r"""
+    === NB! НЕ ПРАВИТЬ! ЭТАЛОННЫЕ ЛОГИ ДЛЯ F1=0.733 ===
+
     [flaml.automl.logger: 08-24 14:27:34] {1752} INFO - task = classification
     [flaml.automl.logger: 08-24 14:27:34] {1763} INFO - Evaluation method: cv
     [flaml.automl.logger: 08-24 14:28:02] {1862} INFO - Minimizing error metric: 1-f1
@@ -666,25 +883,61 @@ def _(mo):
 
 
 @app.cell
+def _(X_test_final, X_train_final, make_predict_with_top_k_models, y_train):
+    y_pred_with_top_k_models = make_predict_with_top_k_models(
+        X_train=X_train_final,
+        y_train=y_train,
+        X_test=X_test_final,
+        path_to_log_file="./log_flaml_tuning.log",
+        top_k=3,
+    )
+    return (y_pred_with_top_k_models,)
+
+
+@app.cell
+def _(pd, y_pred_with_top_k_models):
+    pd.Series(y_pred_with_top_k_models).value_counts()
+    return
+
+
+@app.cell
+def _(CLASS_WEIGHT_BALANCED, X_train_final, get_shap_values, pd, y_train):
+    get_shap_values(
+        model_params=dict(
+            max_iter=500,
+            learning_rate=0.01,
+            max_depth=8,
+            max_features=0.3,
+            class_weight=CLASS_WEIGHT_BALANCED,
+            early_stopping=True,
+        ),
+        train=pd.concat([X_train_final, y_train], axis=1),
+        use_categoric_cols=False,
+    )
+    return
+
+
+@app.cell
 def _(automl):
     automl.save_best_config("./best_config_f1=0.7333.txt")
     return
 
 
 @app.cell
-def _(X_test_final, automl, pd):
-    submission = pd.DataFrame({
-        "id": X_test_final.index, 
-        "prediction": automl.predict(X_test_final),
-    })
-
-    submission.to_csv("./submission.csv", index=False)
+def _(X_test_final, automl_wo_early_stopping, save_submission):
+    save_submission(model=automl_wo_early_stopping, X_test=X_test_final)
     return
 
 
 @app.cell
 def _(pd):
     pd.read_csv("./submission.csv")["prediction"].value_counts()
+    return
+
+
+@app.cell
+def _(pd):
+    pd.read_csv("./submission_f1=0.7398.csv")["prediction"].value_counts()
     return
 
 
