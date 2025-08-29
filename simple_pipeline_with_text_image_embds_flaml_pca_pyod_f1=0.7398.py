@@ -4,6 +4,18 @@ __generated_with = "0.15.1"
 app = marimo.App(width="medium")
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    - Добавлены индексы кластера как фичи
+    - Добавлены скоры детектора аномалий как фичи
+    - Предобработаны текстовые фичи (токеницазия, лемматизаци etc.)
+    """
+    )
+    return
+
+
 @app.cell
 def _():
     import marimo as mo
@@ -551,6 +563,8 @@ def _(AutoML, SEED, TASK, X_train_final, custom_hp, y_train):
         split_type="stratified",
         custom_hp=custom_hp,
         seed=SEED,
+        log_file_name="./log_flaml_tuning_f1=0.7398.log",
+        log_type="all",
     )
     return (automl_wo_early_stopping,)
 
@@ -650,20 +664,6 @@ def _(mo):
                    reg_lambda=np.float64(1.2245998946760492), verbose=-1)
     [flaml.automl.logger: 08-29 06:24:19] {2009} INFO - fit succeeded
     [flaml.automl.logger: 08-29 06:24:19] {2010} INFO - Time taken to find the best model: 2830.2626099586487
-    """
-    )
-    return
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        r"""
-    retrained model: LGBMClassifier(colsample_bytree=np.float64(0.8771225442915792),
-                   is_unbalance=True, learning_rate=np.float64(0.15498210767922252),
-                   max_bin=1023, min_child_samples=5, n_estimators=3894, n_jobs=-1,
-                   num_leaves=76, reg_alpha=0.0009765625,
-                   reg_lambda=np.float64(0.011614476432374917), verbose=-1)
     """
     )
     return
