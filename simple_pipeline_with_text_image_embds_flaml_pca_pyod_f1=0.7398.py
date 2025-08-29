@@ -24,14 +24,20 @@ def _():
     import matplotlib.pyplot as plt
     import mlflow
     import category_encoders as ce
+    import lightgbm as lgb
 
     from pyod.models.copod import COPOD
+
+    from tqdm import tqdm
 
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import classification_report, f1_score, matthews_corrcoef
     from sklearn.preprocessing import QuantileTransformer
     from sklearn.decomposition import PCA, KernelPCA
     from sklearn.cluster import KMeans
+    from sklearn.ensemble import VotingClassifier
+
+    import typing as t
 
     import re
 
@@ -42,7 +48,20 @@ def _():
 
     from flaml.automl.automl import AutoML
     from flaml import tune
-    return AutoML, COPOD, KMeans, PCA, QuantileTransformer, ce, mo, np, pd
+    return (
+        AutoML,
+        COPOD,
+        KMeans,
+        PCA,
+        QuantileTransformer,
+        VotingClassifier,
+        ce,
+        lgb,
+        mo,
+        np,
+        pd,
+        tqdm,
+    )
 
 
 @app.cell
@@ -61,6 +80,48 @@ def _(np, pd):
             ]
         )
     return (load_embeddings,)
+
+
+@app.cell
+def _(VotingClassifier, lgb, np, pd, tqdm, weights):
+    def make_predict_with_top_k_models(
+        X_train: pd.DataFrame,
+        y_train: np.typing.ArrayLike,
+        X_test: pd.DataFrame,
+        path_to_log_file: str, 
+        top_k: int = 5,
+        voting: str = "soft",
+    ) -> np.typing.ArrayLike:
+        trials_log = pd.read_json(path_to_log_file, lines=True)
+    
+        _val_loss_groups = trials_log.groupby("validation_loss")["config"] \
+            .agg("count") \
+            .sort_index(ascending=True) \
+            .iloc[:top_k]
+    
+        val_loss_groups = _val_loss_groups[_val_loss_groups == 1].index.tolist()
+        _mask = trials_log["validation_loss"].isin(val_loss_groups)
+
+        models = []
+        for record in tqdm(trials_log[_mask].sort_values("validation_loss").itertuples(), total=top_k):
+            print(f"MODEL CONFIG: {record.config}")
+            model = lgb.LGBMClassifier(**record.config)
+            model.fit(X_train, y_train)
+            models.append((f"clf-{record.record_id}", model))
+            print(f"FITTED: {model.fitted_}")
+        
+            negs_poss = pd.Series(model.predict(X_test)).value_counts().values
+            print(f"0/1: {negs_poss[0]} / {negs_poss[1]}")
+
+        voter = VotingClassifier(
+            estimators=models,
+            voting="soft",
+            weights=weights,
+        )
+        voter.fit(X_train, y_train)
+    
+        return voter.predict(X_test)
+    return (make_predict_with_top_k_models,)
 
 
 @app.cell
@@ -435,12 +496,6 @@ def _(X_train_final_, detector):
 
 
 @app.cell
-def _(X_train_final):
-    X_train_final.shape
-    return
-
-
-@app.cell
 def _(X_test_final_, X_train_final_, detector):
     X_train_final_.loc[:, "copod_score"] = detector.predict_proba(X_train_final_)[:, 1]
     X_test_final_.loc[:, "copod_score"] = detector.predict_proba(X_test_final_)[:, 1]
@@ -551,14 +606,9 @@ def _(AutoML, SEED, TASK, X_train_final, custom_hp, y_train):
         y_train,
         task=TASK,
         time_budget=3600,
-        estimator_list=(
-            "lgbm",
-            # "xgboost",
-            # "catboost"
-        ),
+        estimator_list=("lgbm"),
         eval_method="holdout",
         split_ratio=0.2,
-        # n_splits=3,
         metric="f1",
         split_type="stratified",
         custom_hp=custom_hp,
@@ -567,6 +617,36 @@ def _(AutoML, SEED, TASK, X_train_final, custom_hp, y_train):
         log_type="all",
     )
     return (automl_wo_early_stopping,)
+
+
+@app.cell
+def _(pd):
+    trials_log = pd.read_json("./log_flaml_tuning_f1=0.7398.log", lines=True)
+    return (trials_log,)
+
+
+@app.cell
+def _(trials_log):
+    trials_log.sort_values("validation_loss")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""### _Мягкое голосование top-k_""")
+    return
+
+
+@app.cell
+def _(X_test_final, X_train_final, make_predict_with_top_k_models, y_train):
+    y_pred_with_top_k_models = make_predict_with_top_k_models(
+        X_train_final,
+        y_train,
+        X_test_final,
+        path_to_log_file="./log_flaml_tuning_f1=0.7398.log",
+        top_k=3,
+    )
+    return
 
 
 @app.cell
